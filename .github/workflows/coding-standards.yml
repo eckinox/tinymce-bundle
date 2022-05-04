@@ -1,0 +1,43 @@
+name: Coding Standards
+
+on:
+    push:
+    pull_request:
+
+jobs:
+    coding-standards:
+        name: Coding standards
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v2
+            - name: Cache Composer dependencies
+              uses: actions/cache@v2
+              with:
+                  path: /tmp/composer-cache
+                  key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
+            - name: Add HTTP basic auth credentials
+              run: "([ -n '${{ secrets.COMPOSER_AUTH_JSON }}' ] && echo '${{ secrets.COMPOSER_AUTH_JSON }}' > $GITHUB_WORKSPACE/auth.json) || echo 'No GitHub authentication provided'"
+            - name: Install PHP dependencies (composer install)
+              uses: php-actions/composer@v6
+              with:
+                php_version: 8.0
+                php_extensions: xsl intl
+            - name: Remove auth.json file
+              run: rm -f $GITHUB_WORKSPACE/auth.json
+            - name: Restore configs overwritten by the eckinox/eckinox-cs install
+              run: git checkout -- .
+            - name: Use Node.js 12.x
+              uses: actions/setup-node@v1
+              with:
+                  node-version: 12.x
+            - name: Install JS dependencies (npm install)
+              run: npm i --ignore-scripts --production=false
+            - name: PHP CS Fixer
+              run: DEV/cs/php-cs-fixer.sh
+            - name: PHP Stan
+              run: DEV/cs/phpstan.sh
+            - name: PHP MD
+              run: DEV/cs/phpmd.sh
+            - name: CSS stylelint
+              run: DEV/cs/stylelint.sh

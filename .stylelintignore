@@ -1,0 +1,3 @@
+public/bundles/**/*.css
+vendor/**/*.css
+node_modules/**/*.css

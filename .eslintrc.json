@@ -1,0 +1,38 @@
+{
+    "env": {
+        "browser": true,
+        "es2021": true
+	},
+	"globals": {
+	},
+    "extends": [
+        "eslint:recommended"
+    ],
+    "parserOptions": {
+        "ecmaVersion": 12,
+        "sourceType": "module"
+    },
+    "plugins": [
+        "html"
+    ],
+    "rules": {
+        "indent": [
+            "error",
+            "tab",
+			{ "ignoredNodes": ["TemplateLiteral *"] }
+        ],
+        "linebreak-style": [
+            "error",
+            "unix"
+        ],
+        "quotes": "off",
+        "semi": [
+            "error",
+            "always"
+        ]
+    },
+	"settings": {
+		"html/html-extensions": [".html", ".twig"],
+		"html/javascript-mime-types": ["text/javascript", ""]
+	}
+}

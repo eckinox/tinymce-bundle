@@ -1,0 +1,17 @@
+{
+	"dependencies": {
+		"@tinymce/tinymce-webcomponent": "^2.0.0",
+		"tinymce": "^6.0.2"
+	},
+	"devDependencies": {
+		"eslint": "^8.0",
+		"eslint-plugin-html": "^6.1.1",
+		"stylelint": "^14.0",
+		"stylelint-config-standard": "^24.0.0"
+	},
+	"scripts": {
+		"lint": "npm run lint:js && npm run lint:css",
+		"lint:css": "npx stylelint \"**/*.css\" --config .stylelintrc.json --allow-empty-input --cache",
+		"lint:js": "npx eslint --ext .js,.html,.twigs"
+	}
+}

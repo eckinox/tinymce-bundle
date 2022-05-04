@@ -1,0 +1,67 @@
+#!/bin/bash
+BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../.."
+
+# Define CI scripts to run
+CI_SCRIPTS=("php-cs-fixer.sh" "phpstan.sh" "phpmd.sh" "stylelint.sh")
+CI_SCRIPT_NAMES=("PHP-CS-Fixer" "PHPStan" "PHPMD" "CSS stylelint")
+scriptCount=${#CI_SCRIPTS[@]}
+addedFiles=$(git diff --diff-filter=d --cached --name-only)
+
+# Utility functions
+verbose()
+{
+    msg=${1}
+    type=${2:-""}
+    addTrailingNewline=${3:-0}
+
+    if [ "${type}" = "error" ]; then
+			msg="\033[1m\e[41m${msg}\e[0m"
+    elif [ "${type}" = "success" ]; then
+      msg="\033[1m\e[42m${msg}\e[0m"
+    elif [ "${type}" = "info" ]; then
+			msg="\e[44m${msg}\e[0m"
+    fi
+
+	endNewline=""
+	if [ ${addTrailingNewline} -eq 1 ]; then
+		endNewline="\n"
+	fi
+
+    if [ "${type}" = "error" ]; then
+      >&2 printf "${msg}${endNewline}"
+		else
+			printf "${msg}${endNewline}"
+    fi
+}
+
+# Run PHP-CS-Fixer with automatic fixes
+vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.dist.php -q
+
+# If there were any added files, re-add them after the automatic fixes
+if [ -n "$addedFiles" ]
+then
+	git add $addedFiles
+fi
+
+# Loop through scripts and execute them
+# If no error is thrown, mute all outputs.
+# Otherwise, stop execution and output the error(s).
+for ((i=0; i < ${scriptCount}; i++)); do
+	filename=${CI_SCRIPTS[$i]}
+	label=${CI_SCRIPT_NAMES[$i]}
+
+	verbose "Running ${label}..." "info"
+	output=$(${BASEDIR}/DEV/cs/${filename} 2>&1)
+
+	if [ $? -ne 0 ]; then
+			printf " ❌\n"
+			verbose "Failed CI test ${label} (DEV/cs/${filename}). View output below." "error" 1
+			printf "%s\n" "${output}"
+			exit 1
+	else
+		echo " ✅"
+	fi
+done
+
+# All systems go: tests ran without errors!
+verbose "Tests passed with flying colors: all systems go!\e[0m 🚀" "success" 1
