@@ -5,4 +5,4 @@ services:
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
 
     Eckinox\TinymceBundle\Form\Type\TinymceType:
-        tag: form.type
+        tags: ["form.type"]
