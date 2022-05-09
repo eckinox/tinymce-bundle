@@ -83,6 +83,23 @@ To set this up, take a look at [Tiny's web component file upload documentation](
 To help you get started, we have provided an example of what the implementation may look like. 
 You can find this example in [`docs/file-upload-example.md`](./docs/file-upload-example.md).
 
+
+## AppStack skin
+
+This bundle comes with an `appstack` skin, which matches the style of the 
+[AppStack Bootstrap template](https://appstack-bs5.bootlab.io/index.html). 
+
+This skin is an extension of the tinymce-5, and it has dark mode support built-in.
+
+To use it, simply specify it in your configuration:
+```yaml
+# config/packages/tinymce.yaml
+tinymce:
+    skin: appstack
+    content_css: appstack
+```
+
+
 ## Versions
 
 | Bundle version | TinyMCE version | TinyMCE Web Component version |
