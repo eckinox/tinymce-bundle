@@ -26,9 +26,20 @@ public function buildForm(FormBuilderInterface $builder, array $options): void
     // ...
 ```
 
-#### Using TinyMCE in templates or in Javascript
+#### Using TinyMCE in templates
 
-@TODO: Add example of basic usage in templates
+To render a TinyMCE editor in Twig without using Symfony forms, you can use the 
+`tinymce()` Twig function that is provided by this bundle.
+
+Simply provide the value as the first argument and you're good to go.
+
+You can also use the second argument to specify attributes to add to the element.
+
+Here is an example:
+
+```twig
+{{ tinymce("<p>This is a note</p>", { name: "notes", skin: "oxide" }) }}
+```
 
 
 ## Configuring TinyMCE

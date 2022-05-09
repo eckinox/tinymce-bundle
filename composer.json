@@ -8,7 +8,8 @@
         "symfony/http-kernel": "^4.0|^5.0|^6.0",
         "symfony/form": "^4.0|^5.0|^6.0",
         "symfony/dependency-injection": "^4.0|^5.0|^6.0",
-        "symfony/routing": "^4.0|^5.0|^6.0"
+        "symfony/routing": "^4.0|^5.0|^6.0",
+        "twig/twig": "^3.3"
     },
     "require-dev": {
         "eckinox/eckinox-cs": ">=1.2.1"
