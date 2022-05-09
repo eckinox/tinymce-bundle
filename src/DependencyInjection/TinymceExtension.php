@@ -24,7 +24,11 @@ class TinymceExtension extends Extension implements PrependExtensionInterface
 		$loader->load('services.yaml');
 
 		$configuration = new Configuration();
-		$this->processConfiguration($configuration, $configs);
+		$tinymceConfig = $this->processConfiguration($configuration, $configs);
+
+		$container
+			->getDefinition('Eckinox\TinymceBundle\Util\TinymceConfigurator')
+			->addArgument($tinymceConfig);
 	}
 
 	public function prepend(ContainerBuilder $container): void

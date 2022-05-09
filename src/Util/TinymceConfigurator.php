@@ -2,7 +2,6 @@
 
 namespace Eckinox\TinymceBundle\Util;
 
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Routing\RouterInterface;
 
 class TinymceConfigurator
@@ -12,9 +11,12 @@ class TinymceConfigurator
 	 */
 	private ?array $globalAttributes = null;
 
+	/**
+	 * @param array<string,mixed>|null $userConfig
+	 */
 	public function __construct(
+		private ?array $userConfig,
 		private RouterInterface $router,
-		private ParameterBagInterface $parameters,
 	)
 	{
 	}
@@ -30,8 +32,7 @@ class TinymceConfigurator
 	public function getGlobalAttributes(): array
 	{
 		if ($this->globalAttributes === null) {
-			$userConfig = (array)($this->parameters->get("twig") ?: []);
-			$userAttributes = $this->processUserConfig($userConfig);
+			$userAttributes = $this->processUserConfig($this->userConfig);
 			$attributes = array_merge($this->getDefaultAttributes(), $userAttributes);
 			$this->globalAttributes = array_filter($attributes, fn($value) => $value != "");
 		}
