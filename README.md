@@ -41,6 +41,44 @@ Here is an example:
 {{ tinymce("<p>This is a note</p>", { name: "notes", skin: "oxide" }) }}
 ```
 
+#### Using TinyMCE in Javascript
+
+To render a TinyMCE editor in Javascript, first ensure that the main TinyMCE script
+is loaded. 
+
+If you already use the `tinymce()` Twig function or the `TinymceType` on the page,
+the scripts are already loaded. Otherwise, you can include them on the page either
+by adding the following scripts manually:
+
+```html
+<script src="{{ asset('bundles/tinymce/ext/tinymce/tinymce.min.js') }}"></script>
+<script src="{{ asset('bundles/tinymce/ext/tinymce-webcomponent.js') }}" type="module"></script>
+```
+
+or by using the `tinymce_scripts()` function like so:
+```twig
+{{ tinymce_scripts() }}
+```
+
+Then, all you have to do is add a TinyMCE editor web element on the page with the
+desired attributes and value.
+
+Here's is an example:
+
+```js
+const contentText = document.createTextNode("<p>Your original text goes here</p>");
+const editor = document.createElement("tinymce-editor");
+
+editor.append(contentText);
+editor.setAttribute("skin", "appstack");
+
+// Add the editor to the page
+document.body.append(editor);
+```
+
+You can refer to [Tiny's web component documentation](https://www.tiny.cloud/docs/tinymce/6/webcomponent-ref) 
+for more information.
+
 
 ## Configuring TinyMCE
 

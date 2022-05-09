@@ -20,6 +20,7 @@ class TinymceTwigExtension extends AbstractExtension
 	{
 		return [
 			new TwigFunction('tinymce', [$this, 'tinymceEditor'], ['needs_environment' => true]),
+			new TwigFunction('tinymce_scripts', [$this, 'tinymceScripts'], ['needs_environment' => true]),
 		];
 	}
 
@@ -40,6 +41,17 @@ class TinymceTwigExtension extends AbstractExtension
 			'data' => $data,
 			'attributes' => new Markup($htmlAttributes, "utf-8")
 		]);
+
+		return new Markup($elementHtml, 'utf-8');
+	}
+
+	/**
+	 * Renders the two scripts for TinyMCE to prepare for injection of TinyMCE
+	 * editor in Javascript.
+	 */
+	public function tinymceScripts(Environment $environment): Markup
+	{
+		$elementHtml = $environment->render('@Tinymce/twig/tinymce_scripts.html.twig');
 
 		return new Markup($elementHtml, 'utf-8');
 	}
