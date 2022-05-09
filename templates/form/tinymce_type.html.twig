@@ -1,0 +1,7 @@
+{%- block tinymce_widget -%}
+    <tinymce-editor
+		{{ block('attributes') }}
+		src="{{ asset('bundles/eckinoxtinymce/ext/tinymce/tinymce.min.js') }}"
+		>{{ data }}</tinymce-editor>
+	<script src="{{ asset('bundles/eckinoxtinymce/ext/tinymce-webcomponent.js') }}" type="module"></script>
+{%- endblock -%}

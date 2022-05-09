@@ -1,6 +1,6 @@
 <?php
 
-namespace Eckinox\PdfBundle\DependencyInjection;
+namespace Eckinox\TinymceBundle\DependencyInjection;
 
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -21,5 +21,15 @@ class TinymceExtension extends Extension
 	{
 		$loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../../config'));
 		$loader->load('services.yaml');
+		$loader->load('packages/twig.yaml');
+
+		$configuration = new Configuration();
+		$config = $this->processConfiguration($configuration, $configs);
+
+		if (!empty($config['api_key'])) {
+			$container
+				->getDefinition('Eckinox\TinymceBundle\Form\Type\TinymceType')
+				->addArgument($config['api_key']);
+		}
 	}
 }
