@@ -6,3 +6,5 @@ services:
 
     Eckinox\TinymceBundle\Form\Type\TinymceType:
         tags: ["form.type"]
+
+    Eckinox\TinymceBundle\Util\TinymceConfigurator: ~

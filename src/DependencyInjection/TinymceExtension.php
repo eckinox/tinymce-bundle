@@ -7,7 +7,6 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
-use Symfony\Component\Routing\RouterInterface;
 
 /**
  * This is the class that loads and manages your bundle configuration.
@@ -16,12 +15,6 @@ use Symfony\Component\Routing\RouterInterface;
  */
 class TinymceExtension extends Extension implements PrependExtensionInterface
 {
-	private function __construct(
-		private RouterInterface $router
-	)
-	{
-	}
-
 	/**
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter.configs)
 	 */
@@ -31,8 +24,7 @@ class TinymceExtension extends Extension implements PrependExtensionInterface
 		$loader->load('services.yaml');
 
 		$configuration = new Configuration();
-		$tinyMceConfig = $this->processConfiguration($configuration, $configs);
-		$this->loadTinyMceDefaults($tinyMceConfig, $container);
+		$this->processConfiguration($configuration, $configs);
 	}
 
 	public function prepend(ContainerBuilder $container): void
@@ -42,32 +34,5 @@ class TinymceExtension extends Extension implements PrependExtensionInterface
 				'@Tinymce/form/tinymce_type.html.twig'
 			]
 		]);
-	}
-
-	/**
-	 * @param array<string,mixed> $defaultConfig
-	 */
-	private function loadTinyMceDefaults(array $defaultConfig, ContainerBuilder $container): void
-	{
-		if (empty($defaultConfig["images_upload_url"]) && !empty($defaultConfig["images_upload_route"])) {
-			$defaultConfig["images_upload_url"] = $this->router->generate(
-				$defaultConfig["images_upload_route"],
-				$defaultConfig["images_upload_route_params"] ?? [],
-				RouterInterface::ABSOLUTE_URL
-			);
-		}
-
-		unset($defaultConfig["images_upload_route"]);
-		unset($defaultConfig["images_upload_route_params"]);
-
-		foreach ($defaultConfig as $key => $value) {
-			if ($value === "") {
-				unset($defaultConfig[$key]);
-			}
-		}
-
-		$container
-			->getDefinition('Eckinox\TinymceBundle\Form\Type\TinymceType')
-			->addArgument($defaultConfig);
 	}
 }
