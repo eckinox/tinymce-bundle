@@ -1,3 +1,4 @@
 public/ext/**/*.css
+public/skins/**/*.css
 vendor/**/*.css
 node_modules/**/*.css
