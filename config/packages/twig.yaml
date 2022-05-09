@@ -1,3 +1,0 @@
-twig:
-    form_themes:
-        - 'form/tinymce_type.html.twig'

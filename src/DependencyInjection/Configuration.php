@@ -22,7 +22,17 @@ class Configuration implements ConfigurationInterface
 		// more information on that topic.
 		$rootNode
 			->children()
-				->scalarNode('api_key')->end()
+				->scalarNode('skin')->end()
+				->scalarNode('content_css')->end()
+				->scalarNode('plugins')->end()
+				->scalarNode('toolbar')->end()
+				->scalarNode('images_upload_url')->end()
+				->scalarNode('images_upload_route')->end()
+				->arrayNode('images_upload_route_params')->end()
+				->scalarNode('images_upload_handler')->end()
+				->scalarNode('images_upload_base_path')->end()
+				->scalarNode('images_upload_credentials')->end()
+				->scalarNode('images_reuse_filename')->end()
 			->end();
 
 		return $treeBuilder;

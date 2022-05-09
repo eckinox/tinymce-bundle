@@ -11,27 +11,28 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class TinymceType extends AbstractType
 {
-	public function buildForm(FormBuilderInterface $builder, array $options): void
+	/**
+	 * @param array<string,string> $defaultAttributes
+	 */
+	public function __construct(
+		private array $defaultAttributes = []
+	)
 	{
-		// Default fields: latitude, longitude
-		$builder
-			->add($options['lat_name'], $options['type'], array_merge($options['options'], $options['lat_options']))
-			->add($options['lng_name'], $options['type'], array_merge($options['options'], $options['lng_options']));
 	}
 
 	public function configureOptions(OptionsResolver $resolver): void
 	{
-		$resolver->setDefaults([
-			// 'type' => HiddenType::class,
-		]);
-	}
+		$attributes = [
+			'plugins' => "advlist autolink link image media table lists",
+			'menubar' => "false",
+			'toolbar' => "bold italic underline | bullist numlist | table quickimage link",
+			'height' => "12em",
+			'images_upload_credentials' => "true",
+		];
 
-	/**
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-	 */
-	public function buildView(FormView $view, FormInterface $form, array $options): void
-	{
-		// $view->vars['api_key'] = $options['api_key'];
+		$resolver->setDefaults([
+			'attr' => array_merge($attributes, $this->defaultAttributes)
+		]);
 	}
 
 	public function getParent(): string
