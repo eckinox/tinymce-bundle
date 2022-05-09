@@ -109,9 +109,9 @@ You can set the following default options in a configuration file:
 
 ```yaml
 tinymce:
-		# The configurations mirror the TinyMCE attributes.
-		# Learn more about each option in Tiny's documentation: 
-		# https://www.tiny.cloud/docs/tinymce/6/webcomponent-ref/
+    # The configurations mirror the TinyMCE attributes.
+    # Learn more about each option in Tiny's documentation: 
+    # https://www.tiny.cloud/docs/tinymce/6/webcomponent-ref/
     skin: "oxide"
     content_css: "default"
     plugins: "advlist autolink link image media table lists"
