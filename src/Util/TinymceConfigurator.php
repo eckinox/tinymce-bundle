@@ -12,7 +12,7 @@ class TinymceConfigurator
 	 */
 	private ?array $globalAttributes = null;
 
-	private function __construct(
+	public function __construct(
 		private RouterInterface $router,
 		private ParameterBagInterface $parameters,
 	)
