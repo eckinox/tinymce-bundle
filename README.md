@@ -109,17 +109,20 @@ You can set the following default options in a configuration file:
 
 ```yaml
 tinymce:
-    skin: "oxide" # https://www.tiny.cloud/docs/tinymce/6/webcomponent-ref/#setting-the-editor-skin
-    content_css: "default" # https://www.tiny.cloud/docs/tinymce/6/webcomponent-ref/#setting-content-stylesheets
-    plugins: "advlist autolink link image media table lists" # https://www.tiny.cloud/docs/tinymce/6/webcomponent-ref/#loading-plugins
-    toolbar: "bold italic underline | bullist numlist" # https://www.tiny.cloud/docs/tinymce/6/webcomponent-ref/#setting-the-toolbar
-    images_upload_url: "https://yoursite.com/upload" # https://www.tiny.cloud/docs/tinymce/6/webcomponent-ref/#setting-the-images-upload-url
-    images_upload_route: "" # The name of the route for `images_upload_url` (leave `images_upload_url` blank if using this)
-    images_upload_route_params: "" # The params of the route for `images_upload_url` (leave `images_upload_url` blank if using this)
-    images_upload_handler: "" # https://www.tiny.cloud/docs/tinymce/6/webcomponent-ref/#setting-the-images-upload-handler
-    images_upload_base_path: "" # https://www.tiny.cloud/docs/tinymce/6/webcomponent-ref/#setting-the-images-upload-base-path
-    images_upload_credentials: "true" # https://www.tiny.cloud/docs/tinymce/6/webcomponent-ref/#setting-the-images-upload-to-have-credentials
-    images_reuse_filename: "" # https://www.tiny.cloud/docs/tinymce/6/webcomponent-ref/#setting-the-images-upload-to-reuse-filenames
+		# The configurations mirror the TinyMCE attributes.
+		# Learn more about each option in Tiny's documentation: 
+		# https://www.tiny.cloud/docs/tinymce/6/webcomponent-ref/
+    skin: "oxide"
+    content_css: "default"
+    plugins: "advlist autolink link image media table lists"
+    toolbar: "bold italic underline | bullist numlist"
+    images_upload_url: "https://yoursite.com/upload"
+    images_upload_route: "" # Pame of the route for `images_upload_url` (leave `images_upload_url` blank if using this)
+    images_upload_route_params: "" # Parameters of the route for `images_upload_url` (leave `images_upload_url` blank if using this)
+    images_upload_handler: ""
+    images_upload_base_path: ""
+    images_upload_credentials: "true"
+    images_reuse_filename: ""
 ```
 
 
