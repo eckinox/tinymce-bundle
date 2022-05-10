@@ -18,6 +18,7 @@ class TinymceType extends AbstractType
 	public function configureOptions(OptionsResolver $resolver): void
 	{
 		$resolver->setDefaults([
+			'compound' => false,
 			'attr' => $this->tinyMceConfigurator->getGlobalAttributes()
 		]);
 	}
