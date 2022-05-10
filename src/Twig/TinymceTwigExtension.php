@@ -16,7 +16,10 @@ class TinymceTwigExtension extends AbstractExtension
 	{
 	}
 
-	public function getFunctions()
+	/**
+	 * @return array<int,TwigFunction>
+	 */
+	public function getFunctions(): array
 	{
 		return [
 			new TwigFunction('tinymce', [$this, 'tinymceEditor'], ['needs_environment' => true]),
