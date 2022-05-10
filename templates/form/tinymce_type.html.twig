@@ -1,8 +1,10 @@
 {%- block tinymce_widget -%}
-    <tinymce-editor
+	<tinymce-editor
+		id="{{ id }}"
 		name="{{ full_name }}"
+		{{ required ? "required" : "" }}
 		{{ block('attributes') }}
 		src="{{ asset('bundles/tinymce/ext/tinymce/tinymce.min.js') }}"
-		>{{ data }}</tinymce-editor>
+		>{{ value }}</tinymce-editor>
 	<script src="{{ asset('bundles/tinymce/ext/tinymce-webcomponent.js') }}" type="module"></script>
 {%- endblock -%}
