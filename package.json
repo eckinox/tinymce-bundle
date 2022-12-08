@@ -1,7 +1,7 @@
 {
 	"dependencies": {
 		"@tinymce/tinymce-webcomponent": "^2.0.0",
-		"tinymce": "^6.0.2"
+		"tinymce": "^6.3.1"
 	},
 	"devDependencies": {
 		"eslint": "^8.0",
