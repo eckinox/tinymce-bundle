@@ -38,15 +38,15 @@ class TinyMceUploadController extends AbstractController
 		$file = $request->files->get("file");
 
 		if (!$file) {
-			return return new Response("Missing file.", 400);
+			return new Response("Missing file.", 400);
 		}
 
 		if ($file->getSize() > self::MAX_FILESIZE) {
-			return return new Response("Your file is too big. Maximum size: ".(self::MAX_FILESIZE / 1000000)."MB", 400);
+			return new Response("Your file is too big. Maximum size: ".(self::MAX_FILESIZE / 1000000)."MB", 400);
 		}
 
 		if (!str_starts_with($file->getMimeType(), "image/")) {
-			return return new Response("Provided file is not an image.", 400);
+			return new Response("Provided file is not an image.", 400);
 		}
 
 		/** 
