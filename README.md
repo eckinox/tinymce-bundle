@@ -117,7 +117,7 @@ tinymce:
     plugins: "advlist autolink link image media table lists"
     toolbar: "bold italic underline | bullist numlist"
     images_upload_url: "https://yoursite.com/upload"
-    images_upload_route: "" # Pame of the route for `images_upload_url` (leave `images_upload_url` blank if using this)
+    images_upload_route: "" # Name of the route for `images_upload_url` (leave `images_upload_url` blank if using this)
     images_upload_route_params: "" # Parameters of the route for `images_upload_url` (leave `images_upload_url` blank if using this)
     images_upload_handler: ""
     images_upload_base_path: ""
