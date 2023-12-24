@@ -1,11 +1,11 @@
 /**
- * TinyMCE version 6.0.2 (2022-04-27)
+ * TinyMCE version 6.8.2 (2023-12-11)
  */
 
 (function () {
     'use strict';
 
-    var global$2 = tinymce.util.Tools.resolve('tinymce.PluginManager');
+    var global$3 = tinymce.util.Tools.resolve('tinymce.PluginManager');
 
     const hasProto = (v, constructor, predicate) => {
       var _a;
@@ -60,7 +60,9 @@
     }
     const never = constant(false);
 
-    var global$1 = tinymce.util.Tools.resolve('tinymce.util.Tools');
+    const escape = text => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+    var global$2 = tinymce.util.Tools.resolve('tinymce.util.Tools');
 
     const option = name => editor => editor.options.get(name);
     const register$2 = editor => {
@@ -79,7 +81,10 @@
       });
       registerOption('template_preview_replace_values', { processor: 'object' });
       registerOption('template_replace_values', { processor: 'object' });
-      registerOption('templates', { processor: value => isString(value) || isArrayOf(value, isObject) || isFunction(value) });
+      registerOption('templates', {
+        processor: value => isString(value) || isArrayOf(value, isObject) || isFunction(value),
+        default: []
+      });
       registerOption('template_cdate_format', {
         processor: 'string',
         default: editor.translate('%Y-%m-%d')
@@ -132,70 +137,6 @@
       fmt = fmt.replace('%a', '' + editor.translate(daysShort[date.getDay()]));
       fmt = fmt.replace('%%', '%');
       return fmt;
-    };
-
-    const createTemplateList = (editor, callback) => {
-      return () => {
-        const templateList = getTemplates(editor);
-        if (isFunction(templateList)) {
-          templateList(callback);
-        } else if (isString(templateList)) {
-          fetch(templateList).then(res => {
-            if (res.ok) {
-              res.json().then(callback);
-            }
-          });
-        } else {
-          callback(templateList);
-        }
-      };
-    };
-    const replaceTemplateValues = (html, templateValues) => {
-      global$1.each(templateValues, (v, k) => {
-        if (isFunction(v)) {
-          v = v(k);
-        }
-        html = html.replace(new RegExp('\\{\\$' + k + '\\}', 'g'), v);
-      });
-      return html;
-    };
-    const replaceVals = (editor, scope) => {
-      const dom = editor.dom, vl = getTemplateReplaceValues(editor);
-      global$1.each(dom.select('*', scope), e => {
-        global$1.each(vl, (v, k) => {
-          if (dom.hasClass(e, k)) {
-            if (isFunction(v)) {
-              v(e);
-            }
-          }
-        });
-      });
-    };
-    const hasClass = (n, c) => new RegExp('\\b' + c + '\\b', 'g').test(n.className);
-    const insertTemplate = (editor, _ui, html) => {
-      const dom = editor.dom;
-      const sel = editor.selection.getContent();
-      html = replaceTemplateValues(html, getTemplateReplaceValues(editor));
-      let el = dom.create('div', null, html);
-      const n = dom.select('.mceTmpl', el);
-      if (n && n.length > 0) {
-        el = dom.create('div', null);
-        el.appendChild(n[0].cloneNode(true));
-      }
-      global$1.each(dom.select('*', el), n => {
-        if (hasClass(n, getCreationDateClasses(editor).replace(/\s+/g, '|'))) {
-          n.innerHTML = getDateTime(editor, getCdateFormat(editor));
-        }
-        if (hasClass(n, getModificationDateClasses(editor).replace(/\s+/g, '|'))) {
-          n.innerHTML = getDateTime(editor, getMdateFormat(editor));
-        }
-        if (hasClass(n, getSelectedContentClasses(editor).replace(/\s+/g, '|'))) {
-          n.innerHTML = sel;
-        }
-      });
-      replaceVals(editor, el);
-      editor.execCommand('mceInsertContent', false, el.innerHTML);
-      editor.addVisual();
     };
 
     class Optional {
@@ -291,6 +232,15 @@
     }
     Optional.singletonNone = new Optional(false);
 
+    const exists = (xs, pred) => {
+      for (let i = 0, len = xs.length; i < len; i++) {
+        const x = xs[i];
+        if (pred(x, i)) {
+          return true;
+        }
+      }
+      return false;
+    };
     const map = (xs, f) => {
       const len = xs.length;
       const r = new Array(len);
@@ -315,13 +265,13 @@
       return findUntil(xs, pred, never);
     };
 
-    var global = tinymce.util.Tools.resolve('tinymce.Env');
-
     const hasOwnProperty = Object.hasOwnProperty;
     const get = (obj, key) => {
       return has(obj, key) ? Optional.from(obj[key]) : Optional.none();
     };
     const has = (obj, key) => hasOwnProperty.call(obj, key);
+
+    var global$1 = tinymce.util.Tools.resolve('tinymce.html.Serializer');
 
     const entitiesAttr = {
       '"': '&quot;',
@@ -331,14 +281,82 @@
       '\'': '&#039;'
     };
     const htmlEscape = html => html.replace(/["'<>&]/g, match => get(entitiesAttr, match).getOr(match));
+    const hasAnyClasses = (dom, n, classes) => exists(classes.split(/\s+/), c => dom.hasClass(n, c));
+    const parseAndSerialize = (editor, html) => global$1({ validate: true }, editor.schema).serialize(editor.parser.parse(html, { insert: true }));
+
+    const createTemplateList = (editor, callback) => {
+      return () => {
+        const templateList = getTemplates(editor);
+        if (isFunction(templateList)) {
+          templateList(callback);
+        } else if (isString(templateList)) {
+          fetch(templateList).then(res => {
+            if (res.ok) {
+              res.json().then(callback);
+            }
+          });
+        } else {
+          callback(templateList);
+        }
+      };
+    };
+    const replaceTemplateValues = (html, templateValues) => {
+      global$2.each(templateValues, (v, k) => {
+        if (isFunction(v)) {
+          v = v(k);
+        }
+        html = html.replace(new RegExp('\\{\\$' + escape(k) + '\\}', 'g'), v);
+      });
+      return html;
+    };
+    const replaceVals = (editor, scope) => {
+      const dom = editor.dom, vl = getTemplateReplaceValues(editor);
+      global$2.each(dom.select('*', scope), e => {
+        global$2.each(vl, (v, k) => {
+          if (dom.hasClass(e, k)) {
+            if (isFunction(v)) {
+              v(e);
+            }
+          }
+        });
+      });
+    };
+    const insertTemplate = (editor, _ui, html) => {
+      const dom = editor.dom;
+      const sel = editor.selection.getContent();
+      html = replaceTemplateValues(html, getTemplateReplaceValues(editor));
+      let el = dom.create('div', {}, parseAndSerialize(editor, html));
+      const n = dom.select('.mceTmpl', el);
+      if (n && n.length > 0) {
+        el = dom.create('div');
+        el.appendChild(n[0].cloneNode(true));
+      }
+      global$2.each(dom.select('*', el), n => {
+        if (hasAnyClasses(dom, n, getCreationDateClasses(editor))) {
+          n.innerHTML = getDateTime(editor, getCdateFormat(editor));
+        }
+        if (hasAnyClasses(dom, n, getModificationDateClasses(editor))) {
+          n.innerHTML = getDateTime(editor, getMdateFormat(editor));
+        }
+        if (hasAnyClasses(dom, n, getSelectedContentClasses(editor))) {
+          n.innerHTML = sel;
+        }
+      });
+      replaceVals(editor, el);
+      editor.execCommand('mceInsertContent', false, el.innerHTML);
+      editor.addVisual();
+    };
+
+    var global = tinymce.util.Tools.resolve('tinymce.Env');
 
     const getPreviewContent = (editor, html) => {
       var _a;
+      let previewHtml = parseAndSerialize(editor, html);
       if (html.indexOf('<html>') === -1) {
         let contentCssEntries = '';
         const contentStyle = (_a = getContentStyle(editor)) !== null && _a !== void 0 ? _a : '';
         const cors = shouldUseContentCssCors(editor) ? ' crossorigin="anonymous"' : '';
-        global$1.each(editor.contentCSS, url => {
+        global$2.each(editor.contentCSS, url => {
           contentCssEntries += '<link type="text/css" rel="stylesheet" href="' + editor.documentBaseURI.toAbsolute(url) + '"' + cors + '>';
         });
         if (contentStyle) {
@@ -350,9 +368,9 @@
         const preventClicksOnLinksScript = '<script>' + 'document.addEventListener && document.addEventListener("click", function(e) {' + 'for (var elm = e.target; elm; elm = elm.parentNode) {' + 'if (elm.nodeName === "A" && !(' + isMetaKeyPressed + ')) {' + 'e.preventDefault();' + '}' + '}' + '}, false);' + '</script> ';
         const directionality = editor.getBody().dir;
         const dirAttr = directionality ? ' dir="' + encode(directionality) + '"' : '';
-        html = '<!DOCTYPE html>' + '<html>' + '<head>' + '<base href="' + encode(editor.documentBaseURI.getURI()) + '">' + contentCssEntries + preventClicksOnLinksScript + '</head>' + '<body class="' + encode(bodyClass) + '"' + dirAttr + '>' + html + '</body>' + '</html>';
+        previewHtml = '<!DOCTYPE html>' + '<html>' + '<head>' + '<base href="' + encode(editor.documentBaseURI.getURI()) + '">' + contentCssEntries + preventClicksOnLinksScript + '</head>' + '<body class="' + encode(bodyClass) + '"' + dirAttr + '>' + previewHtml + '</body>' + '</html>';
       }
-      return replaceTemplateValues(html, getPreviewReplaceValues(editor));
+      return replaceTemplateValues(previewHtml, getPreviewReplaceValues(editor));
     };
     const open = (editor, templateList) => {
       const createTemplates = () => {
@@ -364,7 +382,7 @@
           });
           return Optional.none();
         }
-        return Optional.from(global$1.map(templateList, (template, index) => {
+        return Optional.from(global$2.map(templateList, (template, index) => {
           const isUrlTemplate = t => t.url !== undefined;
           return {
             selected: index === 0,
@@ -443,7 +461,7 @@
           const content = getPreviewContent(editor, previewHtml);
           const bodyItems = [
             {
-              type: 'selectbox',
+              type: 'listbox',
               name: 'template',
               label: 'Templates',
               items: selectBoxItems
@@ -456,7 +474,8 @@
               label: 'Preview',
               type: 'iframe',
               name: 'preview',
-              sandboxed: false
+              sandboxed: false,
+              transparent: false
             }
           ];
           const initialData = {
@@ -495,10 +514,10 @@
     const setup = editor => {
       editor.on('PreProcess', o => {
         const dom = editor.dom, dateFormat = getMdateFormat(editor);
-        global$1.each(dom.select('div', o.node), e => {
+        global$2.each(dom.select('div', o.node), e => {
           if (dom.hasClass(e, 'mceTmpl')) {
-            global$1.each(dom.select('*', e), e => {
-              if (dom.hasClass(e, getModificationDateClasses(editor).replace(/\s+/g, '|'))) {
+            global$2.each(dom.select('*', e), e => {
+              if (hasAnyClasses(dom, e, getModificationDateClasses(editor))) {
                 e.innerHTML = getDateTime(editor, dateFormat);
               }
             });
@@ -508,22 +527,34 @@
       });
     };
 
+    const onSetupEditable = editor => api => {
+      const nodeChanged = () => {
+        api.setEnabled(editor.selection.isEditable());
+      };
+      editor.on('NodeChange', nodeChanged);
+      nodeChanged();
+      return () => {
+        editor.off('NodeChange', nodeChanged);
+      };
+    };
     const register = editor => {
       const onAction = () => editor.execCommand('mceTemplate');
       editor.ui.registry.addButton('template', {
         icon: 'template',
         tooltip: 'Insert template',
+        onSetup: onSetupEditable(editor),
         onAction
       });
       editor.ui.registry.addMenuItem('template', {
         icon: 'template',
         text: 'Insert template...',
+        onSetup: onSetupEditable(editor),
         onAction
       });
     };
 
     var Plugin = () => {
-      global$2.add('template', editor => {
+      global$3.add('template', editor => {
         register$2(editor);
         register(editor);
         register$1(editor);

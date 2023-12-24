@@ -1,5 +1,5 @@
 /**
- * TinyMCE version 6.0.2 (2022-04-27)
+ * TinyMCE version 6.8.2 (2023-12-11)
  */
 
 (function () {
@@ -41,6 +41,7 @@
     const eq = t => a => t === a;
     const isArray$1 = isType('array');
     const isNull = eq(null);
+    const isUndefined = eq(undefined);
     const isNullable = a => a === null || a === undefined;
     const isNonNullable = a => !isNullable(a);
     const isFunction = isSimpleType('function');
@@ -1418,7 +1419,10 @@
       if (userCharMapAppend) {
         const userDefinedGroup = global.grep(charmap, cg => cg.name === UserDefined);
         if (userDefinedGroup.length) {
-          userDefinedGroup[0].characters = [].concat(userDefinedGroup[0].characters).concat(getCharsFromOption(userCharMapAppend));
+          userDefinedGroup[0].characters = [
+            ...userDefinedGroup[0].characters,
+            ...getCharsFromOption(userCharMapAppend)
+          ];
           return charmap;
         }
         return charmap.concat({
@@ -1484,8 +1488,13 @@
       };
     };
 
-    const contains = (str, substr) => {
-      return str.indexOf(substr) !== -1;
+    const contains = (str, substr, start = 0, end) => {
+      const idx = str.indexOf(substr, start);
+      if (idx !== -1) {
+        return isUndefined(end) ? true : idx + substr.length <= end;
+      } else {
+        return false;
+      }
     };
     const fromCodePoint = String.fromCodePoint;
 
@@ -1593,7 +1602,7 @@
 
     const init = (editor, all) => {
       editor.ui.registry.addAutocompleter('charmap', {
-        ch: ':',
+        trigger: ':',
         columns: 'auto',
         minChars: 2,
         fetch: (pattern, _maxResults) => new Promise((resolve, _reject) => {
@@ -1607,16 +1616,29 @@
       });
     };
 
+    const onSetupEditable = editor => api => {
+      const nodeChanged = () => {
+        api.setEnabled(editor.selection.isEditable());
+      };
+      editor.on('NodeChange', nodeChanged);
+      nodeChanged();
+      return () => {
+        editor.off('NodeChange', nodeChanged);
+      };
+    };
     const register = editor => {
+      const onAction = () => editor.execCommand('mceShowCharmap');
       editor.ui.registry.addButton('charmap', {
         icon: 'insert-character',
         tooltip: 'Special character',
-        onAction: () => editor.execCommand('mceShowCharmap')
+        onAction,
+        onSetup: onSetupEditable(editor)
       });
       editor.ui.registry.addMenuItem('charmap', {
         icon: 'insert-character',
         text: 'Special character...',
-        onAction: () => editor.execCommand('mceShowCharmap')
+        onAction,
+        onSetup: onSetupEditable(editor)
       });
     };
 

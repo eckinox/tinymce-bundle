@@ -1,5 +1,5 @@
 /**
- * TinyMCE version 6.0.2 (2022-04-27)
+ * TinyMCE version 6.8.2 (2023-12-11)
  */
 
 (function () {
@@ -163,9 +163,10 @@
       const selectors = [];
       const contentCSSUrls = {};
       const append = (styleSheet, imported) => {
-        let href = styleSheet.href, rules;
+        let href = styleSheet.href;
+        let rules;
         href = removeCacheSuffix(href);
-        if (!href || !fileFilter(href, imported) || isSkinContentCss(editor, href)) {
+        if (!href || fileFilter && !fileFilter(href, imported) || isSkinContentCss(editor, href)) {
           return;
         }
         global.each(styleSheet.imports, styleSheet => {
@@ -176,7 +177,7 @@
         } catch (e) {
         }
         global.each(rules, cssRule => {
-          if (isCssImportRule(cssRule)) {
+          if (isCssImportRule(cssRule) && cssRule.styleSheet) {
             append(cssRule.styleSheet, true);
           } else if (isCssPageRule(cssRule)) {
             global.each(cssRule.selectorText.split(','), selector => {
@@ -202,7 +203,7 @@
       return selectors;
     };
     const defaultConvertSelectorToFormat = (editor, selectorText) => {
-      let format;
+      let format = {};
       const selector = /^(?:([a-z0-9\-_]+))?(\.[a-z0-9_\-\.]+)$/i.exec(selectorText);
       if (!selector) {
         return;
@@ -262,10 +263,11 @@
     };
     const convertSelectorToFormat = (editor, plugin, selector, group) => {
       let selectorConverter;
+      const converter = getSelectorConverter(editor);
       if (group && group.selector_converter) {
         selectorConverter = group.selector_converter;
-      } else if (getSelectorConverter(editor)) {
-        selectorConverter = getSelectorConverter(editor);
+      } else if (converter) {
+        selectorConverter = converter;
       } else {
         selectorConverter = () => {
           return defaultConvertSelectorToFormat(editor, selector);

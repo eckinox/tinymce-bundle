@@ -1,5 +1,5 @@
 /**
- * TinyMCE version 6.0.2 (2022-04-27)
+ * TinyMCE version 6.8.2 (2023-12-11)
  */
 
 (function () {
@@ -75,8 +75,7 @@
     };
     const updateElement = (editor, timeElm, computerTime, userTime) => {
       const newTimeElm = editor.dom.create('time', { datetime: computerTime }, userTime);
-      timeElm.parentNode.insertBefore(newTimeElm, timeElm);
-      editor.dom.remove(timeElm);
+      editor.dom.replace(newTimeElm, timeElm);
       editor.selection.select(newTimeElm, true);
       editor.selection.collapse(false);
     };
@@ -125,6 +124,16 @@
 
     var global = tinymce.util.Tools.resolve('tinymce.util.Tools');
 
+    const onSetupEditable = editor => api => {
+      const nodeChanged = () => {
+        api.setEnabled(editor.selection.isEditable());
+      };
+      editor.on('NodeChange', nodeChanged);
+      nodeChanged();
+      return () => {
+        editor.off('NodeChange', nodeChanged);
+      };
+    };
     const register = editor => {
       const formats = getFormats(editor);
       const defaultFormat = Cell(getDefaultDateTime(editor));
@@ -146,7 +155,8 @@
         onItemAction: (_api, value) => {
           defaultFormat.set(value);
           insertDateTime(value);
-        }
+        },
+        onSetup: onSetupEditable(editor)
       });
       const makeMenuItemHandler = format => () => {
         defaultFormat.set(format);
@@ -159,7 +169,8 @@
           type: 'menuitem',
           text: getDateTime(editor, format),
           onAction: makeMenuItemHandler(format)
-        }))
+        })),
+        onSetup: onSetupEditable(editor)
       });
     };
 

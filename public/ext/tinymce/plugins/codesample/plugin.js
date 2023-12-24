@@ -1,5 +1,5 @@
 /**
- * TinyMCE version 6.0.2 (2022-04-27)
+ * TinyMCE version 6.8.2 (2023-12-11)
  */
 
 (function () {
@@ -10,6 +10,8 @@
     const isNullable = a => a === null || a === undefined;
     const isNonNullable = a => !isNullable(a);
 
+    const noop = () => {
+    };
     const constant = value => {
       return () => {
         return value;
@@ -111,8 +113,6 @@
 
     const get$1 = (xs, i) => i >= 0 && i < xs.length ? Optional.some(xs[i]) : Optional.none();
     const head = xs => get$1(xs, 0);
-
-    const someIf = (b, a) => b ? Optional.some(a) : Optional.none();
 
     var global$1 = tinymce.util.Tools.resolve('tinymce.dom.DOMUtils');
 
@@ -1224,7 +1224,7 @@
         Prism.languages.css = {
           'comment': /\/\*[\s\S]*?\*\//,
           'atrule': {
-            pattern: /@[\w-](?:[^;{\s]|\s+(?![\s{]))*(?:;|(?=\s*\{))/,
+            pattern: RegExp('@[\\w-](?:' + /[^;{\s"']|\s+(?!\s)/.source + '|' + string.source + ')*?' + /(?:;|(?=\s*\{))/.source),
             inside: {
               'rule': /^@[\w-]+/,
               'selector-function-argument': {
@@ -1277,10 +1277,10 @@
         }
       }(Prism));
       (function (Prism) {
-        var keywords = /\b(?:abstract|assert|boolean|break|byte|case|catch|char|class|const|continue|default|do|double|else|enum|exports|extends|final|finally|float|for|goto|if|implements|import|instanceof|int|interface|long|module|native|new|non-sealed|null|open|opens|package|permits|private|protected|provides|public|record|requires|return|sealed|short|static|strictfp|super|switch|synchronized|this|throw|throws|to|transient|transitive|try|uses|var|void|volatile|while|with|yield)\b/;
-        var classNamePrefix = /(^|[^\w.])(?:[a-z]\w*\s*\.\s*)*(?:[A-Z]\w*\s*\.\s*)*/.source;
+        var keywords = /\b(?:abstract|assert|boolean|break|byte|case|catch|char|class|const|continue|default|do|double|else|enum|exports|extends|final|finally|float|for|goto|if|implements|import|instanceof|int|interface|long|module|native|new|non-sealed|null|open|opens|package|permits|private|protected|provides|public|record(?!\s*[(){}[\]<>=%~.:,;?+\-*/&|^])|requires|return|sealed|short|static|strictfp|super|switch|synchronized|this|throw|throws|to|transient|transitive|try|uses|var|void|volatile|while|with|yield)\b/;
+        var classNamePrefix = /(?:[a-z]\w*\s*\.\s*)*(?:[A-Z]\w*\s*\.\s*)*/.source;
         var className = {
-          pattern: RegExp(classNamePrefix + /[A-Z](?:[\d_A-Z]*[a-z]\w*)?\b/.source),
+          pattern: RegExp(/(^|[^\w.])/.source + classNamePrefix + /[A-Z](?:[\d_A-Z]*[a-z]\w*)?\b/.source),
           lookbehind: true,
           inside: {
             'namespace': {
@@ -1299,7 +1299,12 @@
           'class-name': [
             className,
             {
-              pattern: RegExp(classNamePrefix + /[A-Z]\w*(?=\s+\w+\s*[;,=()])/.source),
+              pattern: RegExp(/(^|[^\w.])/.source + classNamePrefix + /[A-Z]\w*(?=\s+\w+\s*[;,=()]|\s*(?:\[[\s,]*\]\s*)?::\s*new\b)/.source),
+              lookbehind: true,
+              inside: className.inside
+            },
+            {
+              pattern: RegExp(/(\b(?:class|enum|extends|implements|instanceof|interface|new|record|throws)\s+)/.source + classNamePrefix + /[A-Z]\w*\b/.source),
               lookbehind: true,
               inside: className.inside
             }
@@ -1316,7 +1321,8 @@
           'operator': {
             pattern: /(^|[^.])(?:<<=?|>>>?=?|->|--|\+\+|&&|\|\||::|[?:~]|[-+*/%&|^!=<>]=?)/m,
             lookbehind: true
-          }
+          },
+          'constant': /\b[A-Z][A-Z_\d]+\b/
         });
         Prism.languages.insertBefore('java', 'string', {
           'triple-quoted-string': {
@@ -1344,6 +1350,30 @@
               'operator': /[?&|]/
             }
           },
+          'import': [
+            {
+              pattern: RegExp(/(\bimport\s+)/.source + classNamePrefix + /(?:[A-Z]\w*|\*)(?=\s*;)/.source),
+              lookbehind: true,
+              inside: {
+                'namespace': className.inside.namespace,
+                'punctuation': /\./,
+                'operator': /\*/,
+                'class-name': /\w+/
+              }
+            },
+            {
+              pattern: RegExp(/(\bimport\s+static\s+)/.source + classNamePrefix + /(?:\w+|\*)(?=\s*;)/.source),
+              lookbehind: true,
+              alias: 'static',
+              inside: {
+                'namespace': className.inside.namespace,
+                'static': /\b\w+$/,
+                'punctuation': /\./,
+                'operator': /\*/,
+                'class-name': /\w+/
+              }
+            }
+          ],
           'namespace': {
             pattern: RegExp(/(\b(?:exports|import(?:\s+static)?|module|open|opens|package|provides|requires|to|transitive|uses|with)\s+)(?!<keyword>)[a-z]\w*(?:\.[a-z]\w*)*\.?/.source.replace(/<keyword>/g, function () {
               return keywords.source;
@@ -1381,7 +1411,7 @@
       Prism.languages.javascript['class-name'][0].pattern = /(\b(?:class|extends|implements|instanceof|interface|new)\s+)[\w.\\]+/;
       Prism.languages.insertBefore('javascript', 'keyword', {
         'regex': {
-          pattern: /((?:^|[^$\w\xA0-\uFFFF."'\])\s]|\b(?:return|yield))\s*)\/(?:\[(?:[^\]\\\r\n]|\\.)*\]|\\.|[^/\\\[\r\n])+\/[dgimyus]{0,7}(?=(?:\s|\/\*(?:[^*]|\*(?!\/))*\*\/)*(?:$|[\r\n,.;:})\]]|\/\/))/,
+          pattern: RegExp(/((?:^|[^$\w\xA0-\uFFFF."'\])\s]|\b(?:return|yield))\s*)/.source + /\//.source + '(?:' + /(?:\[(?:[^\]\\\r\n]|\\.)*\]|\\.|[^/\\\[\r\n])+\/[dgimyus]{0,7}/.source + '|' + /(?:\[(?:[^[\]\\\r\n]|\\.|\[(?:[^[\]\\\r\n]|\\.|\[(?:[^[\]\\\r\n]|\\.)*\])*\])*\]|\\.|[^/\\\[\r\n])+\/[dgimyus]{0,7}v[dgimyus]{0,7}/.source + ')' + /(?=(?:\s|\/\*(?:[^*]|\*(?!\/))*\*\/)*(?:$|[\r\n,.;:})\]]|\/\/))/.source),
           lookbehind: true,
           greedy: true,
           inside: {
@@ -1522,7 +1552,10 @@
                     pattern: /^=/,
                     alias: 'attr-equals'
                   },
-                  /"|'/
+                  {
+                    pattern: /^(\s*)["']|["']$/,
+                    lookbehind: true
+                  }
                 ]
               }
             },
@@ -1677,7 +1710,7 @@
               lookbehind: true
             },
             {
-              pattern: /(\)\s*:\s*(?:\?\s*)?)\b(?:array(?!\s*\()|bool|callable|(?:false|null)(?=\s*\|)|float|int|iterable|mixed|object|self|static|string|void)\b/i,
+              pattern: /(\)\s*:\s*(?:\?\s*)?)\b(?:array(?!\s*\()|bool|callable|(?:false|null)(?=\s*\|)|float|int|iterable|mixed|never|object|self|static|string|void)\b/i,
               alias: 'return-type',
               greedy: true,
               lookbehind: true
@@ -1704,12 +1737,12 @@
             },
             /\bclass\b/i,
             {
-              pattern: /((?:^|[^\s>:]|(?:^|[^-])>|(?:^|[^:]):)\s*)\b(?:abstract|and|array|as|break|callable|case|catch|clone|const|continue|declare|default|die|do|echo|else|elseif|empty|enddeclare|endfor|endforeach|endif|endswitch|endwhile|enum|eval|exit|extends|final|finally|fn|for|foreach|function|global|goto|if|implements|include|include_once|instanceof|insteadof|interface|isset|list|match|namespace|new|or|parent|print|private|protected|public|require|require_once|return|self|static|switch|throw|trait|try|unset|use|var|while|xor|yield|__halt_compiler)\b/i,
+              pattern: /((?:^|[^\s>:]|(?:^|[^-])>|(?:^|[^:]):)\s*)\b(?:abstract|and|array|as|break|callable|case|catch|clone|const|continue|declare|default|die|do|echo|else|elseif|empty|enddeclare|endfor|endforeach|endif|endswitch|endwhile|enum|eval|exit|extends|final|finally|fn|for|foreach|function|global|goto|if|implements|include|include_once|instanceof|insteadof|interface|isset|list|match|namespace|never|new|or|parent|print|private|protected|public|readonly|require|require_once|return|self|static|switch|throw|trait|try|unset|use|var|while|xor|yield|__halt_compiler)\b/i,
               lookbehind: true
             }
           ],
           'argument-name': {
-            pattern: /([(,]\s+)\b[a-z_]\w*(?=\s*:(?!:))/i,
+            pattern: /([(,]\s*)\b[a-z_]\w*(?=\s*:(?!:))/i,
             lookbehind: true
           },
           'class-name': [
@@ -2177,12 +2210,12 @@
     const get = editor => Global.Prism && useGlobalPrismJS(editor) ? Global.Prism : prismjs;
 
     const isCodeSample = elm => {
-      return elm && elm.nodeName === 'PRE' && elm.className.indexOf('language-') !== -1;
+      return isNonNullable(elm) && elm.nodeName === 'PRE' && elm.className.indexOf('language-') !== -1;
     };
 
     const getSelectedCodeSample = editor => {
       const node = editor.selection ? editor.selection.getNode() : null;
-      return someIf(isCodeSample(node), node);
+      return isCodeSample(node) ? Optional.some(node) : Optional.none();
     };
     const insertCodeSample = (editor, language, code) => {
       const dom = editor.dom;
@@ -2204,7 +2237,7 @@
     };
     const getCurrentCode = editor => {
       const node = getSelectedCodeSample(editor);
-      return node.fold(constant(''), n => n.textContent);
+      return node.bind(n => Optional.from(n.textContent)).getOr('');
     };
 
     const getLanguages = editor => {
@@ -2273,7 +2306,7 @@
           type: 'panel',
           items: [
             {
-              type: 'selectbox',
+              type: 'listbox',
               name: 'language',
               label: 'Language',
               items: languages
@@ -2334,6 +2367,7 @@
           const code = elm.textContent;
           dom.setAttrib(elm, 'class', trim(dom.getAttrib(elm, 'class')));
           dom.setAttrib(elm, 'contentEditable', null);
+          dom.setAttrib(elm, 'data-mce-highlighted', null);
           let child;
           while (child = elm.firstChild) {
             elm.removeChild(child);
@@ -2345,24 +2379,49 @@
       editor.on('SetContent', () => {
         const dom = editor.dom;
         const unprocessedCodeSamples = global.grep(dom.select('pre'), elm => {
-          return isCodeSample(elm) && elm.contentEditable !== 'false';
+          return isCodeSample(elm) && dom.getAttrib(elm, 'data-mce-highlighted') !== 'true';
         });
         if (unprocessedCodeSamples.length) {
           editor.undoManager.transact(() => {
             global.each(unprocessedCodeSamples, elm => {
+              var _a;
               global.each(dom.select('br', elm), elm => {
-                elm.parentNode.replaceChild(editor.getDoc().createTextNode('\n'), elm);
+                dom.replace(editor.getDoc().createTextNode('\n'), elm);
               });
-              elm.contentEditable = 'false';
-              elm.innerHTML = dom.encode(elm.textContent);
+              elm.innerHTML = dom.encode((_a = elm.textContent) !== null && _a !== void 0 ? _a : '');
               get(editor).highlightElement(elm);
+              dom.setAttrib(elm, 'data-mce-highlighted', true);
               elm.className = trim(elm.className);
             });
           });
         }
       });
+      editor.on('PreInit', () => {
+        editor.parser.addNodeFilter('pre', nodes => {
+          var _a;
+          for (let i = 0, l = nodes.length; i < l; i++) {
+            const node = nodes[i];
+            const isCodeSample = ((_a = node.attr('class')) !== null && _a !== void 0 ? _a : '').indexOf('language-') !== -1;
+            if (isCodeSample) {
+              node.attr('contenteditable', 'false');
+              node.attr('data-mce-highlighted', 'false');
+            }
+          }
+        });
+      });
     };
 
+    const onSetupEditable = (editor, onChanged = noop) => api => {
+      const nodeChanged = () => {
+        api.setEnabled(editor.selection.isEditable());
+        onChanged(api);
+      };
+      editor.on('NodeChange', nodeChanged);
+      nodeChanged();
+      return () => {
+        editor.off('NodeChange', nodeChanged);
+      };
+    };
     const isCodeSampleSelection = editor => {
       const node = editor.selection.getStart();
       return editor.dom.is(node, 'pre[class*="language-"]');
@@ -2373,18 +2432,15 @@
         icon: 'code-sample',
         tooltip: 'Insert/edit code sample',
         onAction,
-        onSetup: api => {
-          const nodeChangeHandler = () => {
-            api.setActive(isCodeSampleSelection(editor));
-          };
-          editor.on('NodeChange', nodeChangeHandler);
-          return () => editor.off('NodeChange', nodeChangeHandler);
-        }
+        onSetup: onSetupEditable(editor, api => {
+          api.setActive(isCodeSampleSelection(editor));
+        })
       });
       editor.ui.registry.addMenuItem('codesample', {
         text: 'Code sample...',
         icon: 'code-sample',
-        onAction
+        onAction,
+        onSetup: onSetupEditable(editor)
       });
     };
 
