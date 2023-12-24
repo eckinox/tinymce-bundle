@@ -2,3 +2,4 @@
 node_modules
 .php-cs-fixer.cache
 .DS_Store
+composer.lock
