@@ -23,6 +23,7 @@ jobs:
               with:
                 php_version: 8.0
                 php_extensions: xsl intl
+                args: --no-plugins
             - name: Remove auth.json file
               run: rm -f $GITHUB_WORKSPACE/auth.json
             - name: Restore configs overwritten by the eckinox/eckinox-cs install
