@@ -8,3 +8,5 @@ services:
         tags: ["form.type"]
 
     Eckinox\TinymceBundle\Util\TinymceConfigurator: ~
+
+    Eckinox\TinymceBundle\Twig\TinymceTwigExtension: ~
