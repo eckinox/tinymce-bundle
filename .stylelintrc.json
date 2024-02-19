@@ -11,7 +11,8 @@
 		  "number-leading-zero": "never",
 		  "no-descending-specificity": null,
 		  "rule-empty-line-before": null,
-		  "font-family-no-missing-generic-family-keyword": null
+		  "font-family-no-missing-generic-family-keyword": null,
+		  "max-line-length": 350
 	}
   }
   
