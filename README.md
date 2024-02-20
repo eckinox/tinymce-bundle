@@ -156,6 +156,7 @@ tinymce:
 
 | Bundle version | TinyMCE version | TinyMCE Web Component version |
 |----------------|-----------------|-------------------------------|
+| **1.1**        | 6.8.2           | 2.0.2                         |
 | **1.0**        | 6.0.2           | 2.0.0                         |
 
 
