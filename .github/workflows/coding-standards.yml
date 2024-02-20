@@ -11,6 +11,12 @@ jobs:
         steps:
             - name: Checkout
               uses: actions/checkout@v2
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                php-version: "8.1"
+                tools: phpunit-bridge
+                extensions: mbstring, xml, ctype, iconv, intl
             - name: Cache Composer dependencies
               uses: actions/cache@v2
               with:
@@ -21,9 +27,9 @@ jobs:
             - name: Install PHP dependencies (composer install)
               uses: php-actions/composer@v6
               with:
-                php_version: "8.2"
+                php_version: "8.1"
                 php_extensions: xsl intl
-                args: --no-plugins
+                memory_limit: -1
             - name: Remove auth.json file
               run: rm -f $GITHUB_WORKSPACE/auth.json
             - name: Restore configs overwritten by the eckinox/eckinox-cs install
@@ -40,5 +46,9 @@ jobs:
               run: DEV/cs/phpstan.sh
             - name: PHP MD
               run: DEV/cs/phpmd.sh
+            - name: Twigcs
+              run: DEV/cs/twigcs.sh
             - name: CSS stylelint
               run: DEV/cs/stylelint.sh
+            - name: ESLint (JS)
+              run: DEV/cs/eslint.sh

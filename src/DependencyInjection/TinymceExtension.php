@@ -2,6 +2,7 @@
 
 namespace Eckinox\TinymceBundle\DependencyInjection;
 
+use Eckinox\TinymceBundle\Util\TinymceConfigurator;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
@@ -15,28 +16,26 @@ use Symfony\Component\HttpKernel\DependencyInjection\Extension;
  */
 class TinymceExtension extends Extension implements PrependExtensionInterface
 {
-	/**
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter.configs)
-	 */
-	public function load(array $configs, ContainerBuilder $container): void
-	{
-		$loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../../config'));
-		$loader->load('services.yaml');
+    public function load(array $configs, ContainerBuilder $container): void
+    {
+        $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../../config'));
+        $loader->load('services.yaml');
 
-		$configuration = new Configuration();
-		$tinymceConfig = $this->processConfiguration($configuration, $configs);
+        $configuration = new Configuration();
+        $tinymceConfig = $this->processConfiguration($configuration, $configs);
 
-		$container
-			->getDefinition('Eckinox\TinymceBundle\Util\TinymceConfigurator')
-			->addArgument($tinymceConfig);
-	}
+        $container
+            ->getDefinition(TinymceConfigurator::class)
+            ->addArgument($tinymceConfig)
+        ;
+    }
 
-	public function prepend(ContainerBuilder $container): void
-	{
-		$container->prependExtensionConfig('twig', [
-			'form_themes' => [
-				'@Tinymce/form/tinymce_type.html.twig'
-			]
-		]);
-	}
+    public function prepend(ContainerBuilder $container): void
+    {
+        $container->prependExtensionConfig('twig', [
+            'form_themes' => [
+                '@Tinymce/form/tinymce_type.html.twig',
+            ],
+        ]);
+    }
 }

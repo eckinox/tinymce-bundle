@@ -13,7 +13,7 @@
         "twig/twig": "^3.3"
     },
     "require-dev": {
-        "eckinox/eckinox-cs": ">=1.2.1"
+        "eckinox/eckinox-cs": "^2.0"
     },
     "autoload": {
         "psr-4": {
@@ -25,5 +25,11 @@
             "name": "Émile Perron",
             "email": "contact@emileperron.com"
         }
-    ]
+    ],
+    "config": {
+        "allow-plugins": {
+            "phpstan/extension-installer": true,
+            "eckinox/installer-plugin": true
+        }
+    }
 }

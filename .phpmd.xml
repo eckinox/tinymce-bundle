@@ -1,72 +1,60 @@
 <?xml version="1.0"?>
-<ruleset name="Eckinox PHPMD"
-         xmlns="http://pmd.sf.net/ruleset/1.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://pmd.sf.net/ruleset/1.0.0
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 name="Eckinox PHPMD"
+		 xmlns="http://pmd.sf.net/ruleset/1.0.0"
+		 xsi:schemaLocation="http://pmd.sf.net/ruleset/1.0.0
                      http://pmd.sf.net/ruleset_xml_schema.xsd"
-         xsi:noNamespaceSchemaLocation="
+		 xsi:noNamespaceSchemaLocation="
                      http://pmd.sf.net/ruleset_xml_schema.xsd">
-    <description>
-        Eckinox's PHPMD Ruleset
-    </description>
+	<description>
+		Eckinox's PHPMD Ruleset
+	</description>
 
-    <!-- Import entire rulesets -->
-    <rule ref="rulesets/controversial.xml" />
-    <rule ref="rulesets/unusedcode.xml" />
+	<!-- Import entire rulesets -->
+	<rule ref="rulesets/controversial.xml"/>
 
-    <!-- Import codesize ruleset with common configs for Symfony entities -->
-    <rule ref="rulesets/codesize.xml">
-        <exclude name="TooManyMethods" />
-        <exclude name="TooManyPublicMethods" />
-    </rule>
-    <rule ref="rulesets/codesize.xml/TooManyMethods">
-        <properties>
-            <property name="ignorepattern" value="(^(set|get|add|remove))i" />
-        </properties>
-    </rule>
-    <rule ref="rulesets/codesize.xml/TooManyPublicMethods">
-        <properties>
-            <property name="ignorepattern" value="(^(set|get|add|remove))i" />
-        </properties>
-    </rule>
+	<rule ref="rulesets/unusedcode.xml">
+		<exclude name="UnusedFormalParameter"/>
+	</rule>
 
-    <!-- Import cleancode ruleset with a few allowances -->
-    <rule ref="rulesets/cleancode.xml">
-        <exclude name="IfStatementAssignment" />
-        <exclude name="BooleanArgumentFlag" />
-        <exclude name="ElseExpression" />
-        <exclude name="StaticAccess" />
-    </rule>
+	<!-- Import codesize ruleset with common configs for Symfony entities -->
+	<rule ref="rulesets/codesize.xml">
+		<exclude name="CyclomaticComplexity"/>
+		<exclude name="NPathComplexity"/>
+		<exclude name="ExcessiveParameterList"/>
+		<exclude name="ExcessivePublicCount"/>
+		<exclude name="TooManyFields"/>
+		<exclude name="TooManyMethods"/>
+		<exclude name="TooManyPublicMethods"/>
+		<exclude name="ExcessiveClassComplexity"/>
+		<exclude name="ExcessiveMethodLength"/>
+	</rule>
+	<rule ref="rulesets/codesize.xml/ExcessiveMethodLength">
+		<properties>
+			<property name="minimum" value="200"/>
+		</properties>
+	</rule>
 
-    <!-- Import design ruleset with higher CouplingBetweenObjects limit -->
-    <rule ref="rulesets/design.xml">
-        <exclude name="CouplingBetweenObjects" />
-    </rule>
-    <rule ref="rulesets/design.xml/CouplingBetweenObjects">
-        <properties>
-            <property name="maximum" value="20" />
-        </properties>
-    </rule>
+	<!-- Import cleancode ruleset with a few allowances -->
+	<rule ref="rulesets/cleancode.xml">
+		<exclude name="IfStatementAssignment"/>
+		<exclude name="BooleanArgumentFlag"/>
+		<exclude name="ElseExpression"/>
+		<exclude name="StaticAccess"/>
+		<exclude name="MissingImport"/>
+	</rule>
 
-    <!-- Import naming ruleset with common configs for Symfony -->
-    <rule ref="rulesets/naming.xml">
-        <exclude name="ShortVariable"/>
-        <exclude name="LongVariable"/>
-        <exclude name="ShortMethodName"/>
-    </rule>
-    <rule ref="rulesets/naming.xml/ShortVariable">
-        <properties>
-            <property name="exceptions" value="id,i,em" />
-        </properties>
-    </rule>
-		<rule ref="rulesets/naming.xml/LongVariable">
-			<properties>
-				<property name="maximum" value="30" />
-			</properties>
-    </rule>
-		<rule ref="rulesets/naming.xml/ShortMethodName">
-			<properties>
-					<property name="exceptions" value="up,down" />
-			</properties>
-    </rule>
+	<!-- Import design ruleset with higher CouplingBetweenObjects limit -->
+	<rule ref="rulesets/design.xml">
+		<exclude name="NumberOfChildren"/>
+		<exclude name="CouplingBetweenObjects"/>
+	</rule>
+
+	<!-- Import naming ruleset with common configs for Symfony -->
+	<rule ref="rulesets/naming.xml">
+		<exclude name="LongClassName"/>
+		<exclude name="ShortVariable"/>
+		<exclude name="LongVariable"/>
+		<exclude name="ShortMethodName"/>
+	</rule>
 </ruleset>
