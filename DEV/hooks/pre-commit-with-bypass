@@ -1,4 +1,13 @@
 #!/bin/bash
+#
+# Pre Commit with option to continue when test failed
+#
+# Redirect output to stderr.
+exec 1>&2
+# enable user input
+exec < /dev/tty
+
+
 BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../.."
 
 # Define CI scripts to run
@@ -56,8 +65,13 @@ for ((i=0; i < ${scriptCount}; i++)); do
 	if [ $? -ne 0 ]; then
 			printf " ❌\n"
 			verbose "Failed CI test ${label} (DEV/cs/${filename}). View output below." "error" 1
-			printf "%s\n" "${output}"
-			exit 1
+			printf "%s\n\n" "${output}"
+			verbose "Do you want to continue [Y/n]" "info" 1
+			read yn
+			echo $yn | grep ^[Yy]$
+			if [ $? -eq 1 ]; then
+				exit 1
+			fi
 	else
 		echo " ✅"
 	fi
